@@ -23,6 +23,7 @@ import (
 	"testing"
 
 	"github.com/google/go-containerregistry/authn"
+	"github.com/google/go-containerregistry/name"
 )
 
 func TestBearerRefresh(t *testing.T) {
@@ -46,13 +47,18 @@ func TestBearerRefresh(t *testing.T) {
 	defer server.Close()
 
 	basic := &authn.Basic{Username: "foo", Password: "bar"}
+	registry, err := name.NewRegistry(expectedService, name.WeakValidation)
+	if err != nil {
+		t.Errorf("Unexpected error during NewRegistry: %v", err)
+	}
 
 	bt := &bearerTransport{
-		inner:   http.DefaultTransport,
-		basic:   basic,
-		realm:   server.URL,
-		scope:   expectedScope,
-		service: expectedService,
+		inner:    http.DefaultTransport,
+		basic:    basic,
+		registry: registry,
+		realm:    server.URL,
+		scope:    expectedScope,
+		service:  expectedService,
 	}
 
 	if err := bt.refresh(); err != nil {
@@ -77,13 +83,18 @@ func TestBearerTransport(t *testing.T) {
 		},
 	}
 
+	registry, err := name.NewRegistry("gcr.io", name.WeakValidation)
+	if err != nil {
+		t.Errorf("Unexpected error during NewRegistry: %v", err)
+	}
 	bearer := &authn.Bearer{Token: expectedToken}
 	client := http.Client{Transport: &bearerTransport{
-		inner:  inner,
-		bearer: bearer,
+		inner:    inner,
+		bearer:   bearer,
+		registry: registry,
 	}}
 
-	_, err := client.Get("http://gcr.io/v2/auth")
+	_, err = client.Get("http://gcr.io/v2/auth")
 	if err != nil {
 		t.Errorf("Unexpected error during Get: %v", err)
 	}

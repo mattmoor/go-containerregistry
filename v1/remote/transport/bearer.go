@@ -22,15 +22,17 @@ import (
 	"net/url"
 
 	"github.com/google/go-containerregistry/authn"
+	"github.com/google/go-containerregistry/name"
 )
 
 type bearerTransport struct {
-	inner   http.RoundTripper
-	basic   authn.Authenticator
-	bearer  *authn.Bearer
-	realm   string
-	service string
-	scope   string
+	inner    http.RoundTripper
+	basic    authn.Authenticator
+	bearer   *authn.Bearer
+	registry name.Registry
+	realm    string
+	service  string
+	scope    string
 }
 
 var _ http.RoundTripper = (*bearerTransport)(nil)
@@ -41,7 +43,11 @@ func (bt *bearerTransport) RoundTrip(in *http.Request) (*http.Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	in.Header.Set("Authorization", hdr)
+
+	// Avoid setting Authorization header on the wrong domain (e.g. on redirect).
+	if in.Host == bt.registry.RegistryStr() {
+		in.Header.Set("Authorization", hdr)
+	}
 	in.Header.Set("User-Agent", transportName)
 
 	// TODO(mattmoor): On 401s perform a single refresh() and retry.

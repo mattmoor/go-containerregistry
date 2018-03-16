@@ -67,11 +67,12 @@ func New(ref name.Reference, auth authn.Authenticator, t http.RoundTripper, a Sc
 			service = ref.Context().Registry.String()
 		}
 		bt := &bearerTransport{
-			inner:   t,
-			basic:   auth,
-			realm:   realm,
-			service: service,
-			scope:   ref.Scope(string(a)),
+			inner:    t,
+			basic:    auth,
+			realm:    realm,
+			registry: ref.Context().Registry,
+			service:  service,
+			scope:    ref.Scope(string(a)),
 		}
 		if err := bt.refresh(); err != nil {
 			return nil, err
