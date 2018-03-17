@@ -25,7 +25,7 @@ import (
 var reLocal = regexp.MustCompile(`.*\.local(?:host)?(?::\d{1,5})?$`)
 
 // scheme returns https scheme for all the endpoints except localhost.
-func scheme(reg name.Registry) string {
+func Scheme(reg name.Registry) string {
 	if strings.HasPrefix(reg.Name(), "localhost:") {
 		return "http"
 	}

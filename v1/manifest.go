@@ -16,6 +16,8 @@ package v1
 
 import (
 	"encoding/json"
+	"io"
+	"io/ioutil"
 
 	"github.com/google/go-containerregistry/v1/types"
 )
@@ -39,7 +41,11 @@ type Descriptor struct {
 }
 
 // ParseManifest parses the provided string into a Manifest.
-func ParseManifest(data []byte) (*Manifest, error) {
+func ParseManifest(r io.Reader) (*Manifest, error) {
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
 	m := Manifest{}
 	if err := json.Unmarshal(data, &m); err != nil {
 		return nil, err

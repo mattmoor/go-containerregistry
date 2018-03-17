@@ -15,12 +15,13 @@
 package v1
 
 import (
+	"bytes"
 	"reflect"
 	"testing"
 )
 
 func TestGoodManifestSimple(t *testing.T) {
-	got, err := ParseManifest([]byte(`{}`))
+	got, err := ParseManifest(bytes.NewBufferString(`{}`))
 	if err != nil {
 		t.Errorf("Unexpected error parsing manifest: %v", err)
 	}
@@ -32,7 +33,7 @@ func TestGoodManifestSimple(t *testing.T) {
 }
 
 func TestGoodManifestWithHash(t *testing.T) {
-	good, err := ParseManifest([]byte(`{
+	good, err := ParseManifest(bytes.NewBufferString(`{
   "config": {
     "digest": "sha256:deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef"
   }
@@ -47,7 +48,7 @@ func TestGoodManifestWithHash(t *testing.T) {
 }
 
 func TestManifestWithBadHash(t *testing.T) {
-	bad, err := ParseManifest([]byte(`{
+	bad, err := ParseManifest(bytes.NewBufferString(`{
   "config": {
     "digest": "sha256:deadbeed"
   }

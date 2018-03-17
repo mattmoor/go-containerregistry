@@ -15,6 +15,7 @@
 package v1
 
 import (
+	"bytes"
 	"testing"
 )
 
@@ -58,7 +59,10 @@ func TestBadHashes(t *testing.T) {
 }
 
 func TestSHA256(t *testing.T) {
-	h := SHA256("asdf")
+	h, err := SHA256(bytes.NewBufferString("asdf"))
+	if err != nil {
+		t.Errorf("SHA256() = %v", err)
+	}
 	if got, want := h.Algorithm(), "sha256"; got != want {
 		t.Errorf("Algorithm(); got %v, want %v", got, want)
 	}

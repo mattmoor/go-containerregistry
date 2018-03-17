@@ -19,6 +19,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"strconv"
 	"strings"
 )
@@ -93,12 +95,15 @@ func (h *Hash) parse(unquoted string) error {
 }
 
 // SHA256 computes the Hash of the provided content.
-// TODO(mattmoor): Expose a version that takes a Reader.
-func SHA256(content string) Hash {
+func SHA256(r io.Reader) (Hash, error) {
+	all, err := ioutil.ReadAll(r)
+	if err != nil {
+		return Hash{}, err
+	}
 	hasher := sha256.New()
-	hasher.Write([]byte(content))
+	hasher.Write(all)
 	return Hash{
 		algorithm: "sha256",
 		hex:       hex.EncodeToString(hasher.Sum(nil)),
-	}
+	}, nil
 }

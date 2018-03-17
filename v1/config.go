@@ -14,7 +14,11 @@
 
 package v1
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"io"
+	"io/ioutil"
+)
 
 // ConfigFile is the configuration file that holds the metadata describing
 // how to launch a container.  The names of the fields are chosen to reflect
@@ -83,7 +87,11 @@ type Config struct {
 }
 
 // ParseConfigFile parses the provided string into a ConfigFile.
-func ParseConfigFile(data []byte) (*ConfigFile, error) {
+func ParseConfigFile(r io.Reader) (*ConfigFile, error) {
+	data, err := ioutil.ReadAll(r)
+	if err != nil {
+		return nil, err
+	}
 	cf := ConfigFile{}
 	if err := json.Unmarshal(data, &cf); err != nil {
 		return nil, err
