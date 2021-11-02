@@ -85,8 +85,8 @@ func New(opts ...Option) http.Handler {
 			},
 		},
 		manifests: manifests{
-			manifests: map[string]map[string]manifest{},
-			log:       log.New(os.Stderr, "", log.LstdFlags),
+			log: log.New(os.Stderr, "", log.LstdFlags),
+			mh:  &defaultRepoStore{},
 		},
 	}
 	for _, o := range opts {
